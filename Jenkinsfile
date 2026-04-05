@@ -18,9 +18,14 @@ pipeline {
 
     stage('Terraform validate') {
       steps {
-        dir(TF_DIR) {
-          sh 'terraform init -input=false'
-          sh 'terraform validate'
+        withCredentials([
+          string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+          string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
+        ]) {
+          dir(TF_DIR) {
+            sh 'terraform init -input=false'
+            sh 'terraform validate'
+          }
         }
       }
     }
@@ -28,8 +33,12 @@ pipeline {
     stage('Terraform plan') {
       when { branch 'main' }
       steps {
-        dir(TF_DIR) {
-          withCredentials([string(credentialsId: 'db-password', variable: 'DB_PASS')]) {
+        withCredentials([
+          string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+          string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY'),
+          string(credentialsId: 'db-password', variable: 'DB_PASS')
+        ]) {
+          dir(TF_DIR) {
             sh 'terraform plan -var="db_password=${DB_PASS}" -out=tfplan'
           }
         }
@@ -39,8 +48,13 @@ pipeline {
     stage('Terraform apply') {
       when { branch 'main' }
       steps {
-        dir(TF_DIR) {
-          sh 'terraform apply -auto-approve tfplan'
+        withCredentials([
+          string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+          string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
+        ]) {
+          dir(TF_DIR) {
+            sh 'terraform apply -auto-approve tfplan'
+          }
         }
       }
     }
@@ -48,9 +62,14 @@ pipeline {
     stage('Ansible deploy') {
       when { branch 'main' }
       steps {
-        dir(ANSIBLE_DIR) {
-          sh 'ansible-inventory -i inventory/ --list'
-          sh 'ansible-playbook -i inventory/ playbooks/deploy.yml'
+        withCredentials([
+          string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+          string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
+        ]) {
+          dir(ANSIBLE_DIR) {
+            sh 'ansible-inventory -i inventory/ --list'
+            sh 'ansible-playbook -i inventory/ playbooks/deploy.yml'
+          }
         }
       }
     }
