@@ -1,0 +1,5 @@
+---
+- name: restart app
+  ansible.builtin.systemd:
+    name: jarvis
+    state: restarted

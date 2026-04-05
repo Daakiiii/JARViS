@@ -1,0 +1,15 @@
+---
+- name: Installer les outils de base
+  ansible.builtin.dnf:
+    name:
+      - curl
+      - wget
+      - git
+      - htop
+      - python3
+    state: present
+
+- name: Configurer le timezone
+  ansible.builtin.command:
+    cmd: timedatectl set-timezone Europe/Paris
+  changed_when: false

@@ -1,0 +1,11 @@
+plugin: amazon.aws.aws_ec2
+regions:
+  - eu-west-3
+filters:
+  tag:Project: jarvis
+  instance-state-name: running
+keyed_groups:
+  - key: tags.Name
+    prefix: role
+hostnames:
+  - private-ip-address

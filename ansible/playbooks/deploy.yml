@@ -1,0 +1,20 @@
+---
+- name: Deploiement JARViS
+  hosts: role_jarvis_app
+  become: true
+  serial: 1
+  vars:
+    app_version: "latest"
+    app_port: 8080
+
+  pre_tasks:
+    - name: Mise a jour des paquets
+      ansible.builtin.dnf:
+        name: "*"
+        state: present
+        update_cache: true
+
+  roles:
+    - common
+    - app
+    - monitoring

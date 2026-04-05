@@ -1,0 +1,19 @@
+---
+- name: Creer le dossier de l'application
+  ansible.builtin.file:
+    path: /opt/jarvis
+    state: directory
+    mode: '0755'
+
+- name: Copier les fichiers de l'application
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../app/"
+    dest: /opt/jarvis/
+    mode: '0644'
+
+- name: Activer et demarrer le service
+  ansible.builtin.systemd:
+    name: jarvis
+    enabled: true
+    state: started
+    daemon_reload: true
